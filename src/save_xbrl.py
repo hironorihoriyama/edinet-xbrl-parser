@@ -34,7 +34,7 @@ TARGETS = {              # 他社を増やすときはここに追記
 }
 DOC_TYPE_CODES = ["120"]          # 有価証券報告書 + 訂正
 END_DATE = datetime.date.today()
-START_DATE = END_DATE.replace(year=END_DATE.year - 2)  # 直近x年（最大10年）
+START_DATE = END_DATE.replace(year=END_DATE.year - 10)  # 直近x年（最大10年）
 
 # 保存先
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "outputs")
