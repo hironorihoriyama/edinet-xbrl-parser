@@ -72,7 +72,7 @@ def run() -> None:
         current = START_DATE + datetime.timedelta(days=offset)
         try:
             meta = disclosure_documents(
-                current, api_key=EDINET_API_KEY, type=2  # メタデータのみ→高速
+                current, api_key=EDINET_API_KEY, type=1  # メタデータのみ→高速
             )
             if meta.get("results"):
                 filtered = filter_by_codes(
@@ -87,7 +87,7 @@ def run() -> None:
 
     print(f"\nヒット件数: {len(hits)} 件\n")
 
-    # -------- 3‑2. 各 docID を CSV ZIP として保存 -------- #
+    # -------- 3‑2. 各 docID を XBRL ZIP として保存 -------- #
     for idx, doc in enumerate(tqdm(hits, desc="ファイルダウンロード"), start=1):
         doc_id       = doc["docID"]
         edinet_code  = doc["edinetCode"]
@@ -99,7 +99,7 @@ def run() -> None:
         save_path    = os.path.join(OUTPUT_DIR, save_name)
 
         try:
-            res = get_document(doc_id, EDINET_API_KEY)  # type=5 固定 → CSV ZIP
+            res = get_document(doc_id, EDINET_API_KEY)  # type=1 固定 → XBRL ZIP
             save_document(res, save_path)
         except Exception as e:
             print(f"[ERROR] {doc_id} ダウンロード失敗 ({e})")
