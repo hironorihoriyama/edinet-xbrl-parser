@@ -18,7 +18,9 @@ def main() -> None:
     # zip を展開してパス辞書取得
     xbrl_paths = extract_xbrl_from_zips(outputs, extracted)
 
-    aggregated: list[list[str | None]] = []
+    aggregated: list[
+        tuple[str, str, str, str | None, str | None, str | None, str | None, str | None]
+    ] = []
 
     print("✅ 解析開始:")
     for zip_name, info in xbrl_paths.items():
