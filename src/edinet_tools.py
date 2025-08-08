@@ -36,7 +36,7 @@ def filter_by_codes(
         if doc.get('edinetCode') in edinet_codes and doc.get('docTypeCode') in doc_type_codes
     ]
 
-def disclosure_documents(date: Union[str, datetime.date], api_key: str, type: int = 2) -> Dict:
+def disclosure_documents(date: Union[str, datetime.date], api_key: str, type: int = 1) -> Dict:
     """
     指定日の開示書類メタデータをEDINET APIから取得します。
     [2, 3]
