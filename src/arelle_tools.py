@@ -28,7 +28,10 @@ def extract_xbrl_from_zips(outputs_dir: Path, extracted_dir: Path) -> dict[str, 
 
     return xbrl_paths
 
-def parse_xbrl(xbrl_file: Path) -> tuple[dict[str, str | None], list[tuple[str, str, str]]]:
+def parse_xbrl(xbrl_file: Path) -> tuple[
+    dict[str, str | None],
+    list[tuple[str, str, str, str | None, str | None, str | None, str | None, str | None]],
+]:
     """
     XBRL を 1 度だけループして
       ・会社名 / 売上高 を meta 辞書で返す
