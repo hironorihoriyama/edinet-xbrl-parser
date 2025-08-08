@@ -28,11 +28,37 @@ def extract_xbrl_from_zips(outputs_dir: Path, extracted_dir: Path) -> dict[str, 
 
     return xbrl_paths
 
-def parse_xbrl(xbrl_file: Path) -> tuple[dict[str, str | None], list[tuple[str, str, str]]]:
+def parse_xbrl(
+    xbrl_file: Path,
+) -> tuple[
+    dict[str, str | None],
+    list[
+        tuple[
+            str,
+            str,
+            str,
+            str | None,
+            str | None,
+            str | None,
+            str | None,
+            str | None,
+        ]
+    ],
+]:
     """
     XBRL を 1 度だけループして
       ・会社名 / 売上高 を meta 辞書で返す
-      ・全 Fact を [(label_ja, label_en, value), ...] のリストで返す
+      ・全 Fact を [(label_ja, label_en, value,
+         context_id, start_date, end_date, instant_date, decimals), ...] の
+        リストで返す。
+
+    Returns
+    -------
+    meta : dict[str, str | None]
+        ``{"company_name": 会社名, "netsales": 売上高}``
+    facts_list : list[tuple[str, str, str, str | None, str | None, str | None, str | None, str | None]]
+        各要素は ``(label_ja, label_en, value, context_id,
+        start_date, end_date, instant_date, decimals)`` の 8 要素タプル。
     """
     ctrl = Cntlr.Cntlr(logFileName="logToPrint")
     model = ctrl.modelManager.load(str(xbrl_file))
