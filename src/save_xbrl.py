@@ -56,7 +56,7 @@ def run() -> None:
             except Exception as e:
                 print(f"[WARN] {path} の削除に失敗 ({e})")
 
-    # -------- 3‑1. 日次ループで docID を収集（メタデータのみ取得） -------- #
+    # -------- 3‑1. 日次ループで docID を収集（メタデータと本文を取得） -------- #
     print(
         f"\n* EDINET Downloader *\n"
         f"企業: {', '.join(TARGETS.values())}\n"
@@ -72,7 +72,7 @@ def run() -> None:
         current = START_DATE + datetime.timedelta(days=offset)
         try:
             meta = disclosure_documents(
-                current, api_key=EDINET_API_KEY, type=1  # メタデータのみ→高速
+                current, api_key=EDINET_API_KEY
             )
             if meta.get("results"):
                 filtered = filter_by_codes(

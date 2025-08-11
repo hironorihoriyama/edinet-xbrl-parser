@@ -36,7 +36,7 @@ def filter_by_codes(
         if doc.get('edinetCode') in edinet_codes and doc.get('docTypeCode') in doc_type_codes
     ]
 
-def disclosure_documents(date: Union[str, datetime.date], api_key: str, type: int = 1) -> Dict:
+def disclosure_documents(date: Union[str, datetime.date], api_key: str, type: int = 2) -> Dict:
     """
     指定日の開示書類メタデータをEDINET APIから取得します。
     [2, 3]
@@ -56,7 +56,7 @@ def disclosure_documents(date: Union[str, datetime.date], api_key: str, type: in
     url = "https://disclosure.edinet-fsa.go.jp/api/v2/documents.json"
     params = {
         "date": date_str,
-        "type": type,  # '1': メタデータのみ, '2': メタデータ＋本文 [3]
+        "type": type,  # '2' でメタデータと本文を取得 [3]
         "Subscription-Key": api_key,
     }
 
