@@ -1,5 +1,7 @@
+# src/outputs.py
 
 import os
+from pathlib import Path
 import zipfile
 import pandas as pd
 
@@ -48,11 +50,10 @@ def aggregate_outputs(
     print(f"Written {len(result_df)} rows to {result_path} (sheet: {sheet_name})")
 
 def main() -> None:
-    src_dir = os.path.dirname(__file__)
-    project_dir = os.path.abspath(os.path.join(src_dir, os.pardir))
-    outdir = os.path.join(project_dir, "outputs")
-    resfile = os.path.join(outdir, "result.xlsx")
-    aggregate_outputs(outdir, resfile)
+    outdir = Path(os.getenv("EDINET_OUTPUT_DIR", Path.cwd() / "outputs")).resolve()
+    outdir.mkdir(parents=True, exist_ok=True)
+    resfile = outdir / "result.xlsx"
+    aggregate_outputs(str(outdir), str(resfile))
 
 if __name__ == "__main__":
     main()

@@ -1,12 +1,13 @@
 # src/generate_fs.py
 
 from pathlib import Path
+import os
 from arelle_tools import extract_xbrl_from_zips, parse_xbrl
 import shutil, csv
 
 def main() -> None:
-    root = Path(__file__).resolve().parent.parent
-    outputs = root / "outputs"
+    # 出力先は CWD を既定。EDINET_OUTPUT_DIR があればそれを優先。
+    outputs = Path(os.getenv("EDINET_OUTPUT_DIR", Path.cwd() / "outputs")).resolve()
     extracted = outputs / "extracted"
     merged_csv = outputs / "all_facts.csv"
 
@@ -32,7 +33,7 @@ def main() -> None:
         aggregated.extend(facts)
 
     # ---------- まとめて CSV 出力 ----------
-    merged_csv.parent.mkdir(exist_ok=True)
+    merged_csv.parent.mkdir(exist_ok=True, parents=True)
     with merged_csv.open("w", newline="", encoding="utf-8-sig") as f:
         writer = csv.writer(f)
         writer.writerow([

@@ -1,3 +1,5 @@
+# src/edinet_tools.py
+
 import datetime
 import json
 import os # os.path.join など、必要に応じて残す
