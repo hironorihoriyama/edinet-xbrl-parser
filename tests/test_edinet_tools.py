@@ -1,11 +1,11 @@
-# tests/test_edinet_tools.py
+"""Tests for the edinet_tools module."""
 
 import os
 import sys
 import pytest
 
-# Ensure src directory is on path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
+# Ensure src directory is on path.
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
 
 from edinet_tools import filter_by_codes
 
@@ -24,3 +24,4 @@ def test_filter_by_list_codes():
 def test_filter_by_string_codes():
     result = filter_by_codes(sample_docs, edinet_codes="E00001", doc_type_codes="130")
     assert result == [sample_docs[2]]
+
