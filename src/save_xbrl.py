@@ -1,4 +1,4 @@
-# src/save_xbrl.py
+"""Download XBRL files from EDINET based on specified criteria."""
 
 import datetime
 import os
@@ -7,9 +7,9 @@ import sys
 from typing import List, Dict
 
 from dotenv import load_dotenv
-from tqdm import tqdm            # ★ 進捗バー
+from tqdm import tqdm  # Progress bar.
 
-# 自作モジュール
+# Local modules.
 from edinet_tools import (
     filter_by_codes,
     disclosure_documents,
@@ -18,27 +18,27 @@ from edinet_tools import (
 )
 
 # --------------------------------------------------------------------------- #
-# 1. API キー読み込み
+# 1. Load API key
 # --------------------------------------------------------------------------- #
 load_dotenv()
 EDINET_API_KEY = os.getenv("EDINET_API_KEY")
 if not EDINET_API_KEY:
     sys.exit(
-        "EDINET_API_KEY が設定されていません。.env を確認してください。\n"
-        "例)  EDINET_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxx"
+        "EDINET_API_KEY is not set. Check the .env file.\n"
+        "Example: EDINET_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxx"
     )
 
 # --------------------------------------------------------------------------- #
-# 2. 取得条件（企業・書類種別・期間）
+# 2. Retrieval conditions (companies, document types, period)
 # --------------------------------------------------------------------------- #
-TARGETS = {              # 他社を増やすときはここに追記
+TARGETS = {  # Add more companies here as needed.
     "E04539": "Imperial Hotel, Ltd.",
 }
-DOC_TYPE_CODES = ["120"]          # 有価証券報告書 + 訂正
+DOC_TYPE_CODES = ["120"]  # Securities report + amendments.
 END_DATE = datetime.date.today()
-START_DATE = END_DATE.replace(year=END_DATE.year - 2)  # 直近x年（最大10年）
+START_DATE = END_DATE.replace(year=END_DATE.year - 2)  # Recent x years (max 10).
 
-# 保存先
+# Output directory.
 from pathlib import Path
 OUTPUT_DIR = str(
     Path(os.getenv("EDINET_OUTPUT_DIR", Path.cwd() / "outputs")).resolve()
@@ -46,10 +46,11 @@ OUTPUT_DIR = str(
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # --------------------------------------------------------------------------- #
-# 3. メイン処理
+# 3. Main processing
 # --------------------------------------------------------------------------- #
 def run() -> None:
-    # -------- 3‑0. outputs ディレクトリの初期化 -------- #
+    """Download XBRL files that match the configured criteria."""
+    # -------- 3-0. Initialize outputs directory -------- #
     if os.path.isdir(OUTPUT_DIR):
         for name in os.listdir(OUTPUT_DIR):
             path = os.path.join(OUTPUT_DIR, name)
@@ -59,26 +60,24 @@ def run() -> None:
                 elif os.path.isdir(path):
                     shutil.rmtree(path)
             except Exception as e:
-                print(f"[WARN] {path} の削除に失敗 ({e})")
+                print(f"[WARN] Failed to remove {path} ({e})")
 
-    # -------- 3‑1. 日次ループで docID を収集（メタデータと本文を取得） -------- #
+    # -------- 3-1. Collect docIDs by iterating over dates -------- #
     print(
         f"\n* EDINET Downloader *\n"
-        f"企業: {', '.join(TARGETS.values())}\n"
-        f"書類種別: {DOC_TYPE_CODES}\n"
-        f"期間: {START_DATE} ～ {END_DATE}\n"
-        f"保存先: {os.path.abspath(OUTPUT_DIR)}\n"
+        f"Companies: {', '.join(TARGETS.values())}\n"
+        f"Document types: {DOC_TYPE_CODES}\n"
+        f"Period: {START_DATE} ~ {END_DATE}\n"
+        f"Output: {os.path.abspath(OUTPUT_DIR)}\n"
     )
 
     total_days = (END_DATE - START_DATE).days + 1
     hits: List[Dict] = []
 
-    for offset in tqdm(range(total_days), desc="メタデータ取得", unit="day"):
+    for offset in tqdm(range(total_days), desc="Fetch metadata", unit="day"):
         current = START_DATE + datetime.timedelta(days=offset)
         try:
-            meta = disclosure_documents(
-                current, api_key=EDINET_API_KEY
-            )
+            meta = disclosure_documents(current, api_key=EDINET_API_KEY)
             if meta.get("results"):
                 filtered = filter_by_codes(
                     meta["results"],
@@ -87,31 +86,32 @@ def run() -> None:
                 )
                 hits.extend(filtered)
         except Exception as e:
-            # 通信エラーなどを無視して次の日へ
-            print(f"\n[WARN] {current} 取得失敗 ({e})")
+            # Ignore communication errors and continue with the next day.
+            print(f"\n[WARN] Failed to fetch {current} ({e})")
 
-    print(f"\nヒット件数: {len(hits)} 件\n")
+    print(f"\nHit count: {len(hits)} documents\n")
 
-    # -------- 3‑2. 各 docID を XBRL ZIP として保存 -------- #
-    for idx, doc in enumerate(tqdm(hits, desc="ファイルダウンロード"), start=1):
-        doc_id       = doc["docID"]
-        edinet_code  = doc["edinetCode"]
-        doc_type     = doc["docTypeCode"]
-        filer_name   = TARGETS.get(edinet_code, "Unknown").replace(" ", "")
+    # -------- 3-2. Save each docID as an XBRL ZIP -------- #
+    for idx, doc in enumerate(tqdm(hits, desc="Download files"), start=1):
+        doc_id = doc["docID"]
+        edinet_code = doc["edinetCode"]
+        doc_type = doc["docTypeCode"]
+        filer_name = TARGETS.get(edinet_code, "Unknown").replace(" ", "")
         period_end = doc.get("periodEnd", "")
         report_period = period_end[:7]
-        save_name    = f"{edinet_code}_{report_period}.zip"
-        save_path    = os.path.join(OUTPUT_DIR, save_name)
+        save_name = f"{edinet_code}_{report_period}.zip"
+        save_path = os.path.join(OUTPUT_DIR, save_name)
 
         try:
-            res = get_document(doc_id, EDINET_API_KEY)  # type=1 固定 → XBRL ZIP
+            res = get_document(doc_id, EDINET_API_KEY)  # type=1 fixed → XBRL ZIP
             save_document(res, save_path)
         except Exception as e:
-            print(f"[ERROR] {doc_id} ダウンロード失敗 ({e})")
+            print(f"[ERROR] Failed to download {doc_id} ({e})")
             continue
 
-    print("\n完了しました。outputs フォルダを確認してください。")
+    print("\nFinished. Please check the outputs folder.")
 
 
 if __name__ == "__main__":
     run()
+
