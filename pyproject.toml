@@ -9,12 +9,9 @@ description = "EDINET downloader and XBRL parser powered by Arelle."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
-  # Arelle 本体（2.37 系で互換を維持、パッチ更新は許容）
   "arelle-release>=2.37,<2.38",
-  # ネイティブ拡張は広めに（ホイールがある範囲）※ 6.x も可
   "lxml>=5.4,<7",
   "regex>=2025.7,<2026",
-  # 周辺
   "pandas>=2.3,<3",
   "openpyxl>=3.1,<4",
   "python-dateutil>=2.8,<3",
@@ -30,5 +27,4 @@ generate = "generate_fs:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-# src 直下の単体モジュールを配布対象に
 py-modules = ["arelle_tools", "edinet_tools", "generate_fs", "outputs", "save_xbrl"]
