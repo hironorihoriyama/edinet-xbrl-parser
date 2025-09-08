@@ -1,14 +1,10 @@
 /venv*/
-./venv*/
 __pycache__/
 *.py[cod]
-*$py.class
 build/
 dist/
 *.egg-info/
 outputs/
-result.xlsx
-~$result.xlsx
 *.log
 *.tmp
 .env
@@ -17,4 +13,4 @@ result.xlsx
 .DS_Store
 Thumbs.db
 .pytest_cache/
-tools/arelle/
+/src/sample.py
